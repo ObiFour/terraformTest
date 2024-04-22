@@ -51,9 +51,9 @@ module "ec2_sg" {
   description = "Security group for ec2_sg"
   vpc_id      = aws_vpc.main.id
 
-  # ingress_cidr_blocks = ["0.0.0.0/0"]
-  # ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp"]
-  # egress_rules        = ["all-all"]
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp"]
+  egress_rules        = ["all-all"]
 }
 
 
@@ -126,6 +126,7 @@ resource "aws_instance" "frontend_server" {
   disable_api_termination = false
   ebs_optimized           = true
 }
+
 
 #### Vpc #####
 
