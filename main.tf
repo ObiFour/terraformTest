@@ -42,6 +42,10 @@ module "dev_ssh_sg" {
 
   ingress_cidr_blocks = ["0.0.0.0/0"]
   ingress_rules       = ["ssh-tcp"]
+
+  tags = {
+    name = "Frontend SSH SG"
+  }
 }
 
 module "ec2_sg" {
@@ -54,8 +58,32 @@ module "ec2_sg" {
   # ingress_cidr_blocks = ["0.0.0.0/0"]
   # ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp"]
   # egress_rules        = ["all-all"]
+
+  tags = {
+    Name = "Frontend SG"
+  }
 }
 
+#### NACLs ####
+resource "aws_network_acl" "Public_NACL" {
+  vpc_id = aws_vpc.main.id
+  subnet_ids = aws_subnet.public_subnet.id
+  
+  egress {
+    protocol = "TCP"
+    rule_no = 100
+    action = "allow"
+    cidr_block = "0.0.0.0/0"
+    from_port = 443
+    to_port = 443
+  }
+
+
+
+  tags = {
+    Name = "Public NACL"
+  }
+}
 
 #### IGW ####
 
@@ -63,7 +91,7 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "main"
+    Name = "VPC Internet Gateway"
   }
 }
 
@@ -99,7 +127,7 @@ resource "aws_instance" "frontend_server" {
   subnet_id = aws_subnet.public_subnet.id
 
   tags = {
-    Name = "HelloWorld"
+    Name = "Frontend Server"
   }
 
     root_block_device {
