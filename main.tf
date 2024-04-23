@@ -64,27 +64,6 @@ module "ec2_sg" {
   }
 }
 
-#### NACLs ####
-resource "aws_network_acl" "Public_NACL" {
-  vpc_id = aws_vpc.main.id
-  subnet_ids = aws_subnet.public_subnet.id
-  
-  egress {
-    protocol = "TCP"
-    rule_no = 100
-    action = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port = 443
-    to_port = 443
-  }
-
-
-
-  tags = {
-    Name = "Public NACL"
-  }
-}
-
 #### IGW ####
 
 resource "aws_internet_gateway" "gw" {
