@@ -20,7 +20,7 @@ resource "aws_instance" "backend_server" {
     sudo apt install docker.io -y
     sudo service docker start
     sudo docker pull starwarsjedi687/back-end:latest
-    sudo docker run -p 8080:8080 starwarsjedi687/backend-image
+    sudo docker run -p 8080:8080 starwarsjedi687/backend-image:latest
   EOF
 
   vpc_security_group_ids = [

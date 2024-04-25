@@ -93,10 +93,20 @@ resource "aws_route_table_association" "a" {
   route_table_id = aws_route_table.route_table.id
 }
 
+resource "aws_route_table_association" "b" {
+  subnet_id = aws_subnet.private_subnet.id
+  route_table_id = aws_route_table.route_table.id
+}
+
 #### EC2 Instances ####
 
 resource "aws_eip" "lb" {
   instance = aws_instance.frontend_server.id
+  domain = "vpc"
+}
+
+resource "aws_eip" "public_ip" {
+  instance = aws_instance.backend_server.id
   domain = "vpc"
 }
 
@@ -106,7 +116,7 @@ resource "aws_instance" "frontend_server" {
   subnet_id = aws_subnet.public_subnet.id
 
   tags = {
-    Name = "Frontend Server"
+    Name = "Frontend"
   }
 
     root_block_device {
@@ -119,8 +129,8 @@ resource "aws_instance" "frontend_server" {
     sudo apt update && apt upgrade -y
     sudo apt install docker.io -y
     sudo service docker start
-    sudo docker pull aive407/frontend:latest
-    sudo docker run -p 80:3000 aive407/frontend
+    sudo docker pull aive407/frontend:upgrade
+    sudo docker run -p 80:80 -e MY_APP_API=aws_instance.backend_server.public_ip:8080 aive407/frontend:upgrade
   EOF
 
   vpc_security_group_ids = [
