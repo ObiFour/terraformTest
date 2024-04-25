@@ -31,6 +31,12 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+resource "time_sleep" "wait_100_seconds" {
+  depends_on = [aws_instance.backend_server]
+
+  create_duration = "200s"
+}
+
 #### EC2 Security Groups ####
 
 module "dev_ssh_sg" {
@@ -56,7 +62,7 @@ module "ec2_sg" {
   vpc_id      = aws_vpc.main.id
 
   ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp"]
+  ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp", "all-all"]
   egress_rules        = ["all-all"]
 
   tags = {
@@ -119,6 +125,8 @@ resource "aws_instance" "frontend_server" {
     Name = "Frontend"
   }
 
+  depends_on = [time_sleep.wait_100_seconds]
+
     root_block_device {
     volume_size = 8
   }
@@ -130,7 +138,7 @@ resource "aws_instance" "frontend_server" {
     sudo apt install docker.io -y
     sudo service docker start
     sudo docker pull aive407/frontend:upgrade
-    sudo docker run -p 80:80 -e MY_APP_API=aws_instance.backend_server.public_ip:8080 aive407/frontend:upgrade
+    sudo docker run -p 80:80 -e MY_APP_API="${aws_instance.backend_server.public_ip}:8080" aive407/frontend:upgrade
   EOF
 
   vpc_security_group_ids = [
